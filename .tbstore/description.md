@@ -1,0 +1,1 @@
+The block cms module allow you to add a block of links to the left or right column of your shop so visitors can access your cms pages easily. This module is included with all thirty bees installations.
