@@ -6,7 +6,7 @@ tags:
   - cms pages
   - cms
   - cms links
-short_description: The block CMS module allows you to add links to your cms pages in the left or right column of your shop.
+description_short: The block CMS module allows you to add links to your cms pages in the left or right column of your shop.
 description: description.md
 images:
   - image-1.png
