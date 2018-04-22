@@ -99,7 +99,7 @@
 				</li>
 			{/if}
 			{if isset($display_poweredby) && $display_poweredby}
-				<li class="last_item">{l s='[1]Ecommerce software by %s[/1]' mod='blockcms' sprintf=['PrestaShop™'] tags=['<a class="_blank" href="http://www.prestashop.com">']}</li>
+				<li class="last_item">{l s='[1]Ecommerce software by %s[/1]' mod='blockcms' sprintf=['thirty bees™'] tags=['<a class="_blank" href="https://thirtybees.com">']}</li>
 			{/if}
 		</ul>
 		{$footer_text}
