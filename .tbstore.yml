@@ -10,4 +10,5 @@ description_short: The block CMS module allows you to add links to your cms page
 description: description.md
 images:
   - image-1.png
+gdpr_compliant: true
 license: MIT
