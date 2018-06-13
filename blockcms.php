@@ -37,7 +37,7 @@ class BlockCms extends Module
 	{
 		$this->name = 'blockcms';
 		$this->tab = 'front_office_features';
-		$this->version = '3.0.0';
+		$this->version = '3.0.1';
 		$this->author = 'thirty bees';
 		$this->need_instance = 0;
 
