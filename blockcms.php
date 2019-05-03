@@ -172,10 +172,7 @@ class BlockCms extends Module
 	{
 		$this->context->controller->addJqueryPlugin('tablednd');
 
-		if (version_compare(_PS_VERSION_, '1.6.0.11', '>=') === true)
-			$this->context->controller->addJS(_PS_JS_DIR_.'admin/dnd.js');
-		else
-			$this->context->controller->addJS(_PS_JS_DIR_.'admin-dnd.js');
+		$this->context->controller->addJS(_PS_JS_DIR_.'admin/dnd.js');
 
 		$current_index = AdminController::$currentIndex;
 		$token = Tools::getAdminTokenLite('AdminModules');
@@ -804,7 +801,7 @@ class BlockCms extends Module
 			$this->smarty->assign(array(
 				'block' => 1,
 				'cms_titles' => $cms_titles,
-				'contact_url' => (_PS_VERSION_ >= 1.5) ? 'contact' : 'contact-form'
+				'contact_url' => 'contact'
 			));
 		}
 		return $this->display(__FILE__, 'blockcms.tpl', $this->getCacheId($column));

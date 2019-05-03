@@ -316,7 +316,7 @@ class BlockCMSModel extends ObjectModel
 		$id_shop = (int)$context->shop->id;
 
 		$where_shop = '';
-		if (Tools::version_compare(_PS_VERSION_, '1.6.0.12', '>=') == true && $id_shop != false) {
+		if ($id_shop != false) {
 			$where_shop = ' AND cl.`id_shop` = '.(int)$id_shop;
 		}
 
@@ -338,7 +338,7 @@ class BlockCMSModel extends ObjectModel
 		$id_shop = ($id_shop != false) ? $id_shop : $context->shop->id;
 
 		$where_shop = '';
-		if (Tools::version_compare(_PS_VERSION_, '1.6.0.12', '>=') == true && $id_shop != false)
+		if ($id_shop != false)
 			$where_shop = ' AND ccl.`id_shop` = '.(int)$id_shop;
 
 		$sql = 'SELECT bc.`id_cms_block`, bc.`id_cms_category`, bc.`display_store`, ccl.`link_rewrite`, ccl.`name` category_name, bcl.`name` block_name
@@ -364,7 +364,7 @@ class BlockCMSModel extends ObjectModel
 		$id_shop = ($id_shop != false) ? $id_shop : Context::getContext()->shop->id;
 
 		$where_shop = '';
-		if (Tools::version_compare(_PS_VERSION_, '1.6.0.12', '>=') == true && $id_shop != false)
+		if ($id_shop != false)
 			$where_shop = ' AND cl.`id_shop` = '.(int)$id_shop;
 
 		$sql = 'SELECT c.`id_cms`, cl.`meta_title`, cl.`link_rewrite`
@@ -388,7 +388,7 @@ class BlockCMSModel extends ObjectModel
 		$id_shop = ($id_shop != false) ? $id_shop : Context::getContext()->shop->id;
 
 		$where_shop = '';
-		if (Tools::version_compare(_PS_VERSION_, '1.6.0.12', '>=') == true && $id_shop != false)
+		if ($id_shop != false)
 			$where_shop = ' AND cl.`id_shop` = '.(int)$id_shop;
 
 		$sql = 'SELECT cl.`id_cms`, cl.`meta_title`, cl.`link_rewrite`
@@ -426,15 +426,10 @@ class BlockCMSModel extends ObjectModel
 	public static function getCMSCategories($recursive = false, $parent = 0, $id_shop = false)
 	{
 		$id_shop = ($id_shop != false) ? $id_shop : Context::getContext()->shop->id;
-		$join_shop = '';
-		$where_shop = '';
 
-		if (Tools::version_compare(_PS_VERSION_, '1.6.0.12', '>=') == true)
-		{
-			$join_shop = ' INNER JOIN `'._DB_PREFIX_.'cms_category_shop` cs
+		$join_shop = ' INNER JOIN `'._DB_PREFIX_.'cms_category_shop` cs
 			ON (bcp.`id_cms_category` = cs.`id_cms_category`)';
-			$where_shop = ' AND cs.`id_shop` = '.(int)$id_shop.' AND cl.`id_shop` = '.(int)$id_shop;
-		}
+		$where_shop = ' AND cs.`id_shop` = '.(int)$id_shop.' AND cl.`id_shop` = '.(int)$id_shop;
 
 		if ($recursive === false)
 		{
@@ -503,7 +498,7 @@ class BlockCMSModel extends ObjectModel
 		$id_shop = ($id_shop != false) ? $id_shop : $context->shop->id;
 
 		$where_shop = '';
-		if (Tools::version_compare(_PS_VERSION_, '1.6.0.12', '>=') == true && $id_shop != false)
+		if ($id_shop != false)
 			$where_shop = ' AND ccl.`id_shop` = '.$id_shop;
 
 		$sql = 'SELECT bc.`id_cms_block`, bcl.`name` block_name, ccl.`name` category_name, bc.`position`, bc.`id_cms_category`, bc.`display_store`
