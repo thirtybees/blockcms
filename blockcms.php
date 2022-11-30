@@ -46,7 +46,6 @@ class BlockCms extends Module
 
 		$this->displayName = $this->l('Block CMS');
 		$this->description = $this->l('Adds a block with several CMS links.');
-		$this->secure_key = Tools::encrypt($this->name);
 		$this->tb_versions_compliancy = '> 1.0.0';
 		$this->tb_min_version = '1.0.0';
 		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => '1.6.99.99');
