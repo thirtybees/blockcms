@@ -211,7 +211,7 @@ class BlockCms extends Module
 
         $this->_display = 'index';
 
-        $this->fields_form[0]['form'] = array(
+        $configForm = array(
             'legend' => array(
                 'title' => $this->l('CMS block configuration'),
                 'icon' => 'icon-list-alt'
@@ -235,7 +235,8 @@ class BlockCms extends Module
                 )
             )
         );
-        $this->fields_form[1]['form'] = array(
+
+        $linkForm = array(
             'tinymce' => true,
             'legend' => array(
                 'title' => $this->l('Configuration of the various links in the footer'),
@@ -388,32 +389,36 @@ class BlockCms extends Module
         $tmp = Configuration::get('FOOTER_CMS');
         $footer_boxes = explode('|', $tmp);
 
-        if ($footer_boxes && is_array($footer_boxes))
-            foreach ($footer_boxes as $key => $value)
-                $this->fields_value[$value] = true;
+        $fieldsValues = [];
+        if ($footer_boxes && is_array($footer_boxes)) {
+            foreach ($footer_boxes as $value) {
+                $fieldsValues[$value] = true;
+            }
+        }
 
-        $this->fields_value['cms_footer_on'] = Configuration::get('FOOTER_BLOCK_ACTIVATION');
-        $this->fields_value['cms_footer_powered_by_on'] = Configuration::get('FOOTER_POWEREDBY');
-        $this->fields_value['PS_STORES_DISPLAY_FOOTER_on'] = Configuration::get('PS_STORES_DISPLAY_FOOTER');
-        $this->fields_value['cms_footer_display_price-drop_on'] = Configuration::get('FOOTER_PRICE-DROP');
-        $this->fields_value['cms_footer_display_new-products_on'] = Configuration::get('FOOTER_NEW-PRODUCTS');
-        $this->fields_value['cms_footer_display_best-sales_on'] = Configuration::get('FOOTER_BEST-SALES');
-        $this->fields_value['cms_footer_display_contact_on'] = Configuration::get('FOOTER_CONTACT');
-        $this->fields_value['cms_footer_display_sitemap_on'] = Configuration::get('FOOTER_SITEMAP');
+        $fieldsValues['cms_footer_on'] = Configuration::get('FOOTER_BLOCK_ACTIVATION');
+        $fieldsValues['cms_footer_powered_by_on'] = Configuration::get('FOOTER_POWEREDBY');
+        $fieldsValues['PS_STORES_DISPLAY_FOOTER_on'] = Configuration::get('PS_STORES_DISPLAY_FOOTER');
+        $fieldsValues['cms_footer_display_price-drop_on'] = Configuration::get('FOOTER_PRICE-DROP');
+        $fieldsValues['cms_footer_display_new-products_on'] = Configuration::get('FOOTER_NEW-PRODUCTS');
+        $fieldsValues['cms_footer_display_best-sales_on'] = Configuration::get('FOOTER_BEST-SALES');
+        $fieldsValues['cms_footer_display_contact_on'] = Configuration::get('FOOTER_CONTACT');
+        $fieldsValues['cms_footer_display_sitemap_on'] = Configuration::get('FOOTER_SITEMAP');
 
         foreach ($this->getLanguages() as $language) {
             $footer_text = Configuration::get('FOOTER_CMS_TEXT_' . $language['id_lang']);
-            $this->fields_value['footer_text'][$language['id_lang']] = $footer_text;
+            $fieldsValues['footer_text'][$language['id_lang']] = $footer_text;
         }
 
         $helper = $this->initForm();
         $helper->submit_action = '';
         $helper->title = $this->l('CMS Block configuration');
 
-        $helper->fields_value = $this->fields_value;
-        $this->_html .= $helper->generateForm($this->fields_form);
-
-        return;
+        $helper->fields_value = $fieldsValues;
+        $this->_html .= $helper->generateForm([
+            ['form' => $configForm],
+            ['form' => $linkForm]
+        ]);
     }
 
     /**
@@ -427,7 +432,7 @@ class BlockCms extends Module
         $token = Tools::getAdminTokenLite('AdminModules');
         $back = Tools::safeOutput(Tools::getValue('back', ''));
         $current_index = AdminController::$currentIndex;
-        if (!isset($back) || empty($back))
+        if (empty($back))
             $back = $current_index . '&amp;configure=' . $this->name . '&token=' . $token;
 
         if (Tools::isSubmit('editBlockCMS') && Tools::getValue('id_cms_block')) {
@@ -439,7 +444,7 @@ class BlockCms extends Module
         } else
             $this->_display = 'add';
 
-        $this->fields_form[0]['form'] = array(
+        $editForm = array(
             'tinymce' => true,
             'legend' => array(
                 'title' => isset($cmsBlock) ? $this->l('Edit the CMS block.') : $this->l('New CMS block'),
@@ -521,42 +526,42 @@ class BlockCms extends Module
         $fieldsValues = [];
         foreach ($this->getLanguages() as $language) {
             if (Tools::getValue('block_name_' . $language['id_lang']))
-                $this->fields_value['block_name'][$language['id_lang']] = Tools::getValue('block_name_' . $language['id_lang']);
+                $fieldsValues['block_name'][$language['id_lang']] = Tools::getValue('block_name_' . $language['id_lang']);
             else if (isset($cmsBlock) && isset($cmsBlock[$language['id_lang']]['name']))
-                $this->fields_value['block_name'][$language['id_lang']] = $cmsBlock[$language['id_lang']]['name'];
+                $fieldsValues['block_name'][$language['id_lang']] = $cmsBlock[$language['id_lang']]['name'];
             else
-                $this->fields_value['block_name'][$language['id_lang']] = '';
+                $fieldsValues['block_name'][$language['id_lang']] = '';
         }
 
         if (Tools::getValue('display_stores'))
-            $this->fields_value['display_stores'] = Tools::getValue('display_stores');
+            $fieldsValues['display_stores'] = Tools::getValue('display_stores');
         else if (isset($cmsBlock) && isset($cmsBlock[1]['display_store']))
-            $this->fields_value['display_stores'] = $cmsBlock[1]['display_store'];
+            $fieldsValues['display_stores'] = $cmsBlock[1]['display_store'];
         else
-            $this->fields_value['display_stores'] = '';
+            $fieldsValues['display_stores'] = '';
 
         if (Tools::getValue('id_category'))
-            $this->fields_value['id_category'] = (int)Tools::getValue('id_category');
+            $fieldsValues['id_category'] = (int)Tools::getValue('id_category');
         else if (isset($cmsBlock) && isset($cmsBlock[1]['id_cms_category']))
-            $this->fields_value['id_category'] = $cmsBlock[1]['id_cms_category'];
+            $fieldsValues['id_category'] = $cmsBlock[1]['id_cms_category'];
 
         if (Tools::getValue('block_location'))
-            $this->fields_value['block_location'] = Tools::getValue('block_location');
+            $fieldsValues['block_location'] = Tools::getValue('block_location');
         else if (isset($cmsBlock) && isset($cmsBlock[1]['location']))
-            $this->fields_value['block_location'] = $cmsBlock[1]['location'];
+            $fieldsValues['block_location'] = $cmsBlock[1]['location'];
         else
-            $this->fields_value['block_location'] = 0;
+            $fieldsValues['block_location'] = 0;
 
         if ($cmsBoxes = Tools::getValue('cmsBox'))
-            foreach ($cmsBoxes as $key => $value)
-                $this->fields_value[$value] = true;
+            foreach ($cmsBoxes as $value)
+                $fieldsValues[$value] = true;
         else {
             if (isset($cmsBlockPages) && is_array($cmsBlockPages) && count($cmsBlockPages) > 0)
                 foreach ($cmsBlockPages as $item)
-                    $this->fields_value['0_' . $item['id_cms']] = true;
+                    $fieldsValues['0_' . $item['id_cms']] = true;
             if (isset($cmsBlockCategories) && is_array($cmsBlockCategories) && count($cmsBlockCategories) > 0)
                 foreach ($cmsBlockCategories as $item)
-                    $this->fields_value['1_' . $item['id_cms']] = true;
+                    $fieldsValues['1_' . $item['id_cms']] = true;
         }
 
         $helper = $this->initForm();
@@ -567,10 +572,10 @@ class BlockCms extends Module
         } else
             $helper->submit_action = 'addBlockCMS';
 
-        $helper->fields_value = isset($this->fields_value) ? $this->fields_value : array();
-        $this->_html .= $helper->generateForm($this->fields_form);
-
-        return;
+        $helper->fields_value = $fieldsValues;
+        $this->_html .= $helper->generateForm([
+            ['form' => $editForm]
+        ]);
     }
 
     /**
@@ -746,17 +751,20 @@ class BlockCms extends Module
             }
 
             $cmsBoxes = Tools::getValue('cmsBox');
-            if ($cmsBoxes) {
+            if ($cmsBoxes && isset($id_cms_block)) {
                 foreach ($cmsBoxes as $cmsBox) {
                     $cms_properties = explode('_', $cmsBox);
                     BlockCMSModel::insertCMSBlockPage($id_cms_block, $cms_properties[1], $cms_properties[0]);
                 }
             }
 
-            if (Tools::isSubmit('addBlockCMS'))
+            if (Tools::isSubmit('addBlockCMS')) {
                 $redirect = 'addBlockCMSConfirmation';
-            elseif (Tools::isSubmit('editBlockCMS'))
+            } elseif (Tools::isSubmit('editBlockCMS')) {
                 $redirect = 'editBlockCMSConfirmation';
+            } else {
+                $redirect = '';
+            }
 
             Tools::redirectAdmin(AdminController::$currentIndex . '&configure=' . $this->name . '&token=' . Tools::getAdminTokenLite('AdminModules') . '&' . $redirect);
         } elseif (Tools::isSubmit('deleteBlockCMS') && Tools::getValue('id_cms_block')) {
@@ -923,7 +931,7 @@ class BlockCms extends Module
      */
     public function hookFooter()
     {
-        if (!($block_activation = Configuration::get('FOOTER_BLOCK_ACTIVATION')))
+        if (!(Configuration::get('FOOTER_BLOCK_ACTIVATION')))
             return;
 
         if (!$this->isCached('blockcms.tpl', $this->getCacheId(BlockCMSModel::FOOTER))) {
