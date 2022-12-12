@@ -493,7 +493,7 @@ class BlockCMSModel extends ObjectModel
         $id_shop = (int)$context->shop->id;
 
         $where_shop = '';
-        if ($id_shop != false) {
+        if ($id_shop) {
             $where_shop = ' AND cl.`id_shop` = ' . (int)$id_shop;
         }
 
@@ -517,13 +517,13 @@ class BlockCMSModel extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCMSCategoriesByLocation($location, $id_shop = false)
+    public static function getCMSCategoriesByLocation($location, $id_shop = null)
     {
         $context = Context::getContext();
-        $id_shop = ($id_shop != false) ? $id_shop : $context->shop->id;
+        $id_shop = static::getShopId($id_shop);
 
         $where_shop = '';
-        if ($id_shop != false)
+        if ($id_shop)
             $where_shop = ' AND ccl.`id_shop` = ' . (int)$id_shop;
 
         $sql = 'SELECT bc.`id_cms_block`, bc.`id_cms_category`, bc.`display_store`, ccl.`link_rewrite`, ccl.`name` category_name, bcl.`name` block_name
@@ -545,19 +545,19 @@ class BlockCMSModel extends ObjectModel
     }
 
     /**
-     * @param $id_cms_category
-     * @param $id_shop
+     * @param int $id_cms_category
+     * @param int|null $id_shop
      *
-     * @return array|bool|PDOStatement
+     * @return array|false
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCMSPages($id_cms_category, $id_shop = false)
+    public static function getCMSPages($id_cms_category, $id_shop = null)
     {
-        $id_shop = ($id_shop != false) ? $id_shop : Context::getContext()->shop->id;
+        $id_shop = static::getShopId($id_shop);
 
         $where_shop = '';
-        if ($id_shop != false)
+        if ($id_shop)
             $where_shop = ' AND cl.`id_shop` = ' . (int)$id_shop;
 
         $sql = 'SELECT c.`id_cms`, cl.`meta_title`, cl.`link_rewrite`
@@ -577,19 +577,19 @@ class BlockCMSModel extends ObjectModel
     }
 
     /**
-     * @param $id_block
-     * @param $id_shop
+     * @param int $id_block
+     * @param int|null $id_shop
      *
-     * @return array|bool|PDOStatement
+     * @return array|false
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCMSBlockPages($id_block, $id_shop = false)
+    public static function getCMSBlockPages($id_block, $id_shop = null)
     {
-        $id_shop = ($id_shop != false) ? $id_shop : Context::getContext()->shop->id;
+        $id_shop = static::getShopId($id_shop);
 
         $where_shop = '';
-        if ($id_shop != false)
+        if ($id_shop)
             $where_shop = ' AND cl.`id_shop` = ' . (int)$id_shop;
 
         $sql = 'SELECT cl.`id_cms`, cl.`meta_title`, cl.`link_rewrite`
@@ -640,9 +640,9 @@ class BlockCMSModel extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCMSCategories($recursive = false, $parent = 0, $id_shop = false)
+    public static function getCMSCategories($recursive = false, $parent = 0, $id_shop = null)
     {
-        $id_shop = ($id_shop != false) ? $id_shop : Context::getContext()->shop->id;
+        $id_shop = static::getShopId($id_shop);
 
         $join_shop = ' INNER JOIN `' . _DB_PREFIX_ . 'cms_category_shop` cs
 			ON (bcp.`id_cms_category` = cs.`id_cms_category`)';
@@ -722,13 +722,12 @@ class BlockCMSModel extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCMSBlocksByLocation($location, $id_shop = false)
+    public static function getCMSBlocksByLocation($location, $id_shop = null)
     {
-        $context = Context::getContext();
-        $id_shop = ($id_shop != false) ? $id_shop : $context->shop->id;
+        $id_shop = static::getShopId($id_shop);
 
         $where_shop = '';
-        if ($id_shop != false)
+        if ($id_shop)
             $where_shop = ' AND ccl.`id_shop` = ' . $id_shop;
 
         $sql = 'SELECT bc.`id_cms_block`, bcl.`name` block_name, ccl.`name` category_name, bc.`position`, bc.`id_cms_category`, bc.`display_store`
@@ -778,9 +777,9 @@ class BlockCMSModel extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getAllCMSStructure($id_shop = false)
+    public static function getAllCMSStructure($id_shop = null)
     {
-        $id_shop = ($id_shop != false) ? $id_shop : Context::getContext()->shop->id;
+        $id_shop = static::getShopId($id_shop);
 
         $categories = BlockCMSModel::getCMSCategories(false, 0, $id_shop);
 
@@ -822,7 +821,7 @@ class BlockCMSModel extends ObjectModel
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    public static function getCMSTitles($location, $id_shop = false)
+    public static function getCMSTitles($location, $id_shop = null)
     {
         $content = array();
         $context = Context::getContext();
@@ -860,6 +859,18 @@ class BlockCMSModel extends ObjectModel
         }
 
         return $content;
+    }
+
+    /**
+     * @param int|null $id_shop
+     *
+     * @return int
+     */
+    protected static function getShopId($id_shop)
+    {
+        return $id_shop
+            ? (int)$id_shop
+            : (int)Context::getContext()->shop->id;
     }
 
 }
