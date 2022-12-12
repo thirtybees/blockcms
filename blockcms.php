@@ -384,7 +384,7 @@ class BlockCms extends Module
             )
         );
 
-        $this->context->controller->getLanguages();
+
         $tmp = Configuration::get('FOOTER_CMS');
         $footer_boxes = explode('|', $tmp);
 
@@ -401,7 +401,7 @@ class BlockCms extends Module
         $this->fields_value['cms_footer_display_contact_on'] = Configuration::get('FOOTER_CONTACT');
         $this->fields_value['cms_footer_display_sitemap_on'] = Configuration::get('FOOTER_SITEMAP');
 
-        foreach ($this->context->controller->_languages as $language) {
+        foreach ($this->getLanguages() as $language) {
             $footer_text = Configuration::get('FOOTER_CMS_TEXT_' . $language['id_lang']);
             $this->fields_value['footer_text'][$language['id_lang']] = $footer_text;
         }
@@ -518,8 +518,8 @@ class BlockCms extends Module
             )
         );
 
-        $this->context->controller->getLanguages();
-        foreach ($this->context->controller->_languages as $language) {
+        $fieldsValues = [];
+        foreach ($this->getLanguages() as $language) {
             if (Tools::getValue('block_name_' . $language['id_lang']))
                 $this->fields_value['block_name'][$language['id_lang']] = Tools::getValue('block_name_' . $language['id_lang']);
             else if (isset($cmsBlock) && isset($cmsBlock[$language['id_lang']]['name']))
@@ -580,16 +580,19 @@ class BlockCms extends Module
      */
     protected function initForm()
     {
+        /** @var AdminModulesController $controller */
+        $controller = $this->context->controller;
+
         $helper = new HelperForm();
 
         $helper->module = $this;
         $helper->name_controller = 'blockcms';
         $helper->identifier = $this->identifier;
         $helper->token = Tools::getAdminTokenLite('AdminModules');
-        $helper->languages = $this->context->controller->_languages;
+        $helper->languages = $this->getLanguages();
         $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
-        $helper->default_form_language = $this->context->controller->default_form_language;
-        $helper->allow_employee_form_lang = $this->context->controller->allow_employee_form_lang;
+        $helper->default_form_language = $controller->default_form_language;
+        $helper->allow_employee_form_lang = $controller->allow_employee_form_lang;
         $helper->toolbar_scroll = true;
         $helper->toolbar_btn = $this->initToolbar();
 
@@ -614,10 +617,11 @@ class BlockCms extends Module
         $location = (int)Tools::getValue('location');
         $id_cms_block = (int)Tools::getValue('id_cms_block');
 
-        if (Tools::getValue('way') == 0)
+        if (Tools::getValue('way') == 0) {
             $new_position = $position + 1;
-        else if (Tools::getValue('way') == 1)
+        } else {
             $new_position = $position - 1;
+        }
 
         BlockCMSModel::updateCMSBlockPositions($id_cms_block, $position, $new_position, $location);
         Tools::redirectAdmin('index.php?tab=AdminModules&configure=' . $this->name . '&token=' . Tools::getAdminTokenLite('AdminModules'));
@@ -632,7 +636,6 @@ class BlockCms extends Module
         $this->_errors = array();
 
         if (Tools::isSubmit('submitBlockCMS')) {
-            $this->context->controller->getLanguages();
             $cmsBoxes = Tools::getValue('cmsBox');
 
             if (!Validate::isInt(Tools::getValue('display_stores')) || (Tools::getValue('display_stores') != 0 && Tools::getValue('display_stores') != 1))
@@ -645,7 +648,7 @@ class BlockCms extends Module
                 foreach ($cmsBoxes as $cmsBox)
                     if (!preg_match('#^[01]_[0-9]+$#', $cmsBox))
                         $this->_errors[] = $this->l('Invalid CMS page and/or category.');
-                foreach ($this->context->controller->_languages as $language)
+                foreach ($this->getLanguages() as $language)
                     if (strlen(Tools::getValue('block_name_' . $language['id_lang'])) > 40)
                         $this->_errors[] = $this->l('The block name is too long.');
             }
@@ -661,8 +664,7 @@ class BlockCms extends Module
             $empty_footer_text = true;
             $footer_text = array((int)Configuration::get('PS_LANG_DEFAULT') => Tools::getValue('footer_text_' . (int)Configuration::get('PS_LANG_DEFAULT')));
 
-            $this->context->controller->getLanguages();
-            foreach ($this->context->controller->_languages as $language) {
+            foreach ($this->getLanguages() as $language) {
                 if ($language['id_lang'] == (int)Configuration::get('PS_LANG_DEFAULT'))
                     continue;
 
@@ -677,7 +679,7 @@ class BlockCms extends Module
             if (!$empty_footer_text && empty($footer_text[(int)Configuration::get('PS_LANG_DEFAULT')]))
                 $this->_errors[] = $this->l('Please provide footer text for the default language.');
             else {
-                foreach ($this->context->controller->_languages as $language)
+                foreach ($this->getLanguages() as $language)
                     Configuration::updateValue('FOOTER_CMS_TEXT_' . (int)$language['id_lang'], $footer_text[(int)$language['id_lang']], true);
             }
 
@@ -700,14 +702,13 @@ class BlockCms extends Module
      */
     protected function _postProcess()
     {
-        if ($this->_postValidation() == false)
+        if (!$this->_postValidation())
             return false;
 
         $this->_clearCache('blockcms.tpl');
 
         $this->_errors = array();
         if (Tools::isSubmit('submitBlockCMS')) {
-            $this->context->controller->getLanguages();
             $id_cms_category = (int)Tools::getvalue('id_category');
             $display_store = (int)Tools::getValue('display_stores');
             $location = (int)Tools::getvalue('block_location');
@@ -717,7 +718,7 @@ class BlockCms extends Module
                 $id_cms_block = BlockCMSModel::insertCMSBlock($id_cms_category, $location, $position, $display_store);
 
                 if ($id_cms_block !== false) {
-                    foreach ($this->context->controller->_languages as $language)
+                    foreach ($this->getLanguages() as $language)
                         BlockCMSModel::insertCMSBlockLang($id_cms_block, $language['id_lang']);
 
                     $shops = Shop::getContextListShopID();
@@ -738,7 +739,7 @@ class BlockCms extends Module
 
                 BlockCMSModel::updateCMSBlock($id_cms_block, $id_cms_category, $position, $location, $display_store);
 
-                foreach ($this->context->controller->_languages as $language) {
+                foreach ($this->getLanguages() as $language) {
                     $block_name = Tools::getValue('block_name_' . $language['id_lang']);
                     BlockCMSModel::updateCMSBlockLang($id_cms_block, $block_name, $language['id_lang']);
                 }
@@ -1008,5 +1009,16 @@ class BlockCms extends Module
 						VALUES (NULL, ' . (int)$id_block_cms . ', ' . (int)$page['id_cms'] . ', ' . (int)$page['is_category'] . ');');
             }
         }
+    }
+
+    /**
+     * @return array
+     * @throws PrestaShopException
+     */
+    protected function getLanguages()
+    {
+        /** @var AdminModulesController $controller */
+        $controller = $this->context->controller;
+        return $controller->getLanguages();
     }
 }
