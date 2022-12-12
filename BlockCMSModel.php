@@ -419,8 +419,11 @@ class BlockCMSModel extends ObjectModel
         $context = Context::getContext();
         $footerCms = Configuration::get('FOOTER_CMS');
 
-        if (empty($footerCms))
-            return array();
+        $content = [];
+
+        if (empty($footerCms)) {
+            return $content;
+        }
 
         $cmsCategories = explode('|', $footerCms);
         foreach ($cmsCategories as $cmsCategory) {
@@ -703,13 +706,13 @@ class BlockCMSModel extends ObjectModel
 			ON (cbl.`id_cms_block` = cb.`id_cms_block`)
 			WHERE cb.`id_cms_block` = ' . (int)$id_cms_block;
 
+        $results = [];
         $cmsBlocks = Db::getInstance()->executeS($sql);
-
-        foreach ($cmsBlocks as $cmsBlock) {
-            $results[(int)$cmsBlock['id_lang']] = $cmsBlock;
-            $restuls[(int)$cmsBlock['id_lang']]['name'] = $cmsBlock['name'];
+        if ($cmsBlocks) {
+            foreach ($cmsBlocks as $cmsBlock) {
+                $results[(int)$cmsBlock['id_lang']] = $cmsBlock;
+            }
         }
-
         return $results;
     }
 
