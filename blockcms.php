@@ -386,14 +386,12 @@ class BlockCms extends Module
         );
 
 
-        $tmp = Configuration::get('FOOTER_CMS');
-        $footer_boxes = explode('|', $tmp);
 
         $fieldsValues = [];
-        if ($footer_boxes && is_array($footer_boxes)) {
-            foreach ($footer_boxes as $value) {
-                $fieldsValues[$value] = true;
-            }
+
+        $footer_boxes = explode('|', (string)Configuration::get('FOOTER_CMS'));
+        foreach ($footer_boxes as $value) {
+            $fieldsValues[$value] = true;
         }
 
         $fieldsValues['cms_footer_on'] = Configuration::get('FOOTER_BLOCK_ACTIVATION');
@@ -556,12 +554,16 @@ class BlockCms extends Module
             foreach ($cmsBoxes as $value)
                 $fieldsValues[$value] = true;
         else {
-            if (isset($cmsBlockPages) && is_array($cmsBlockPages) && count($cmsBlockPages) > 0)
-                foreach ($cmsBlockPages as $item)
+            if (isset($cmsBlockPages) && $cmsBlockPages) {
+                foreach ($cmsBlockPages as $item) {
                     $fieldsValues['0_' . $item['id_cms']] = true;
-            if (isset($cmsBlockCategories) && is_array($cmsBlockCategories) && count($cmsBlockCategories) > 0)
-                foreach ($cmsBlockCategories as $item)
+                }
+            }
+            if (isset($cmsBlockCategories) && $cmsBlockCategories) {
+                foreach ($cmsBlockCategories as $item) {
                     $fieldsValues['1_' . $item['id_cms']] = true;
+                }
+            }
         }
 
         $helper = $this->initForm();
@@ -691,7 +693,7 @@ class BlockCms extends Module
             if ((Tools::getValue('cms_footer_on') != 0) && (Tools::getValue('cms_footer_on') != 1))
                 $this->_errors[] = $this->l('Invalid footer activation.');
         }
-        if (count($this->_errors)) {
+        if ($this->_errors) {
             foreach ($this->_errors as $err)
                 $this->_html .= '<div class="alert alert-danger">' . $err . '</div>';
 
@@ -804,7 +806,7 @@ class BlockCms extends Module
             $this->changePosition();
         elseif (Tools::isSubmit('updatePositions'))
             $this->updatePositionsDnd();
-        if (count($this->_errors)) {
+        if ($this->_errors) {
             foreach ($this->_errors as $err)
                 $this->_html .= '<div class="alert error">' . $err . '</div>';
         }
@@ -992,7 +994,7 @@ class BlockCms extends Module
 			JOIN `' . _DB_PREFIX_ . 'cms_block_shop` cbf
 				ON (cb.`id_cms_block` = cbf.`id_cms_block` AND cbf.`id_shop` = ' . (int)$params['old_id_shop'] . ') ');
 
-        if (count($cms_blocks)) {
+        if ($cms_blocks) {
             foreach ($cms_blocks as $cms_block) {
                 Db::getInstance()->execute('
 					INSERT IGNORE INTO ' . _DB_PREFIX_ . 'cms_block (`id_cms_block`, `id_cms_category`, `location`, `position`, `display_store`)

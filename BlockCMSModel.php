@@ -679,8 +679,9 @@ class BlockCMSModel extends ObjectModel
                 $categories = [];
                 foreach ($results as $result) {
                     $sub_categories = BlockCMSModel::getCMSCategories(true, $result['id_cms_category']);
-                    if ($sub_categories && count($sub_categories) > 0)
+                    if ($sub_categories) {
                         $result['sub_categories'] = $sub_categories;
+                    }
                     $categories[] = $result;
                 }
                 return $categories;
@@ -830,13 +831,13 @@ class BlockCMSModel extends ObjectModel
         $context = Context::getContext();
         $cmsCategories = BlockCMSModel::getCMSCategoriesByLocation($location, $id_shop);
 
-        if (is_array($cmsCategories) && count($cmsCategories)) {
+        if ($cmsCategories) {
             foreach ($cmsCategories as $cmsCategory) {
                 $key = (int)$cmsCategory['id_cms_block'];
                 $content[$key]['display_store'] = $cmsCategory['display_store'];
                 $content[$key]['cms'] = BlockCMSModel::getCMSBlockPages($cmsCategory['id_cms_block'], $id_shop);
                 $links = array();
-                if (count($content[$key]['cms'])) {
+                if ($content[$key]['cms']) {
                     foreach ($content[$key]['cms'] as $row) {
                         $row['link'] = $context->link->getCMSLink((int)$row['id_cms'], $row['link_rewrite']);
                         $links[] = $row;
@@ -847,7 +848,7 @@ class BlockCMSModel extends ObjectModel
                 $content[$key]['categories'] = BlockCMSModel::getCMSBlockPagesCategories($cmsCategory['id_cms_block']);
 
                 $links = array();
-                if (count($content[$key]['categories'])) {
+                if ($content[$key]['categories']) {
                     foreach ($content[$key]['categories'] as $row) {
                         $row['link'] = $context->link->getCMSCategoryLink((int)$row['id_cms'], $row['link_rewrite']);
                         $links[] = $row;
