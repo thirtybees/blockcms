@@ -164,24 +164,26 @@ class BlockCms extends Module
         $current_index = AdminController::$currentIndex;
         $token = Tools::getAdminTokenLite('AdminModules');
         $back = Tools::safeOutput(Tools::getValue('back', ''));
-        if (!isset($back) || empty($back))
+        if (empty($back)) {
             $back = $current_index . '&amp;configure=' . $this->name . '&token=' . $token;
+        }
 
+        $buttons = [];
         switch ($this->_display) {
             case 'add':
-                $this->toolbar_btn['cancel'] = array(
+                $buttons['cancel'] = array(
                     'href' => $back,
                     'desc' => $this->l('Cancel')
                 );
                 break;
             case 'edit':
-                $this->toolbar_btn['cancel'] = array(
+                $buttons['cancel'] = array(
                     'href' => $back,
                     'desc' => $this->l('Cancel')
                 );
                 break;
             case 'index':
-                $this->toolbar_btn['new'] = array(
+                $buttons['new'] = array(
                     'href' => $current_index . '&amp;configure=' . $this->name . '&amp;token=' . $token . '&amp;addBlockCMS',
                     'desc' => $this->l('Add new')
                 );
@@ -189,7 +191,7 @@ class BlockCms extends Module
             default:
                 break;
         }
-        return $this->toolbar_btn;
+        return $buttons;
     }
 
     /**
