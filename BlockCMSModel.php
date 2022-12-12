@@ -185,8 +185,9 @@ class BlockCMSModel extends ObjectModel
         $sql = 'INSERT INTO `' . _DB_PREFIX_ . 'cms_block` (`id_cms_category`, `location`, `position`, `display_store`)
 			VALUES(' . (int)$id_category . ', ' . (int)$location . ', ' . (int)$position . ', ' . (int)$display_store . ')';
 
-        if (Db::getInstance()->execute($sql))
+        if (Db::getInstance()->execute($sql)) {
             return (int)Db::getInstance()->Insert_ID();
+        }
 
         return false;
     }
@@ -309,8 +310,9 @@ class BlockCMSModel extends ObjectModel
 			SET `position` = ' . (int)$position . '
 			WHERE `id_cms_block` = ' . (int)$id_cms_block;
 
-        if (Db::getInstance()->execute($query))
+        if (Db::getInstance()->execute($query)) {
             Db::getInstance()->execute($sub_query);
+        }
     }
 
     /**
@@ -433,10 +435,12 @@ class BlockCMSModel extends ObjectModel
                 $query = BlockCMSModel::getBlockName($ids[1]);
                 $content[$cmsCategory]['link'] = $context->link->getCMSCategoryLink((int)$ids[1], $query['link_rewrite']);
                 $content[$cmsCategory]['meta_title'] = $query['name'];
-            } else if ($ids[0] == 0 && isset($ids[1])) {
-                $query = BlockCMSModel::getCMSMetaTitle($ids[1]);
-                $content[$cmsCategory]['link'] = $context->link->getCMSLink((int)$ids[1], $query['link_rewrite']);
-                $content[$cmsCategory]['meta_title'] = $query['meta_title'];
+            } else {
+                if ($ids[0] == 0 && isset($ids[1])) {
+                    $query = BlockCMSModel::getCMSMetaTitle($ids[1]);
+                    $content[$cmsCategory]['link'] = $context->link->getCMSLink((int)$ids[1], $query['link_rewrite']);
+                    $content[$cmsCategory]['meta_title'] = $query['meta_title'];
+                }
             }
         }
 
@@ -526,8 +530,9 @@ class BlockCMSModel extends ObjectModel
         $id_shop = static::getShopId($id_shop);
 
         $where_shop = '';
-        if ($id_shop)
+        if ($id_shop) {
             $where_shop = ' AND ccl.`id_shop` = ' . (int)$id_shop;
+        }
 
         $sql = 'SELECT bc.`id_cms_block`, bc.`id_cms_category`, bc.`display_store`, ccl.`link_rewrite`, ccl.`name` category_name, bcl.`name` block_name
 			FROM `' . _DB_PREFIX_ . 'cms_block` bc
@@ -560,8 +565,9 @@ class BlockCMSModel extends ObjectModel
         $id_shop = static::getShopId($id_shop);
 
         $where_shop = '';
-        if ($id_shop)
+        if ($id_shop) {
             $where_shop = ' AND cl.`id_shop` = ' . (int)$id_shop;
+        }
 
         $sql = 'SELECT c.`id_cms`, cl.`meta_title`, cl.`link_rewrite`
 			FROM `' . _DB_PREFIX_ . 'cms` c
@@ -592,8 +598,9 @@ class BlockCMSModel extends ObjectModel
         $id_shop = static::getShopId($id_shop);
 
         $where_shop = '';
-        if ($id_shop)
+        if ($id_shop) {
             $where_shop = ' AND cl.`id_shop` = ' . (int)$id_shop;
+        }
 
         $sql = 'SELECT cl.`id_cms`, cl.`meta_title`, cl.`link_rewrite`
 			FROM `' . _DB_PREFIX_ . 'cms_block_page` bcp
@@ -659,8 +666,9 @@ class BlockCMSModel extends ObjectModel
 					ON (bcp.`id_cms_category` = cl.`id_cms_category`)
 					WHERE cl.`id_lang` = ' . (int)Context::getContext()->language->id .
                 $where_shop;
-            if ($parent)
+            if ($parent) {
                 $sql .= ' AND bcp.`id_parent` = ' . (int)$parent;
+            }
 
             return Db::getInstance()->executeS($sql);
         } else {
@@ -671,8 +679,9 @@ class BlockCMSModel extends ObjectModel
 					ON (bcp.`id_cms_category` = cl.`id_cms_category`)
 					WHERE cl.`id_lang` = ' . (int)Context::getContext()->language->id .
                 $where_shop;
-            if ($parent)
+            if ($parent) {
                 $sql .= ' AND bcp.`id_parent` = ' . (int)$parent;
+            }
 
             $results = Db::getInstance()->executeS($sql);
             if ($results) {
@@ -731,8 +740,9 @@ class BlockCMSModel extends ObjectModel
         $id_shop = static::getShopId($id_shop);
 
         $where_shop = '';
-        if ($id_shop)
+        if ($id_shop) {
             $where_shop = ' AND ccl.`id_shop` = ' . $id_shop;
+        }
 
         $sql = 'SELECT bc.`id_cms_block`, bcl.`name` block_name, ccl.`name` category_name, bc.`position`, bc.`id_cms_category`, bc.`display_store`
 			FROM `' . _DB_PREFIX_ . 'cms_block` bc
@@ -787,8 +797,9 @@ class BlockCMSModel extends ObjectModel
 
         $categories = BlockCMSModel::getCMSCategories(false, 0, $id_shop);
 
-        foreach ($categories as $key => $value)
+        foreach ($categories as $key => $value) {
             $categories[$key]['cms_pages'] = BlockCMSModel::getCMSPages($value['id_cms_category'], $id_shop);
+        }
 
         return $categories;
     }
